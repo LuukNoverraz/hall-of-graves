@@ -26,7 +26,7 @@ No server. No dependencies. Just open the file.
 
 ### 1. Edit your data
 
-Open `index.html` and find the `<script id="nuzlocke-data">` tag. Replace the example lines with your own attempts:
+Edit `nuzlocke_data.yaml` at the project root. This is the single source of truth for both the OBS overlay and the `/image` endpoint.
 
 ```yaml
 ATTEMPT 1 (Kanto): Nightfall the Piplup lv5, Royalty the Starly lv3, Biefstuk the Bidoof lv4
@@ -40,11 +40,10 @@ ATTEMPT 3 (Sinnoh): Ember the Chimchar lv8, Splash the Magikarp lv5, Sting the W
 - All previous lines are treated as dead teams and greyed out.
 - Each Pokémon entry follows the pattern `Nickname the Species lv#`.
 
-> **Note for Cloudflare Pages users:** If you use the `/image` endpoint, also update `functions/lib/data.js` with the same data. Both files need to stay in sync.
-
 ### 2. Open in your browser
 
-Just double-click `index.html`. It works with the `file://` protocol. No Python, no Node, no server.
+When deployed to Cloudflare Pages, the page fetches `nuzlocke_data.yaml` automatically. When opened locally via `file://`, it falls back to the inline data in the `<script id="nuzlocke-data">` tag inside `index.html` — so it still works without a server.
+
 
 ### 3. Add to OBS
 

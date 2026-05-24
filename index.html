@@ -333,16 +333,18 @@
   </div>
 
   <!-- ============================================================
-       INLINE DATA – edit the lines below to update your attempts
+       INLINE DATA – fallback for local file:// usage
        ============================================================
-       IMPORTANT: If you also use the /image endpoint (Cloudflare
-       Pages Function), update functions/lib/data.js with the same
-       data. Both files need to stay in sync.
+       The page first tries to fetch nuzlocke_data.yaml from the
+       server. If that fails (e.g. when opened via file://), it
+       falls back to the data below. Edit this when testing locally,
+       or edit nuzlocke_data.yaml when deployed.
        ============================================================ -->
   <script id="nuzlocke-data" type="text/plain">ATTEMPT 1 (Kanto): Wipe the Charmander lv12, Monkey the Rattata lv12, Death the Pidgey lv12
 ATTEMPT 2 (Hoenn): Joe Pumpkin the Torchic lv10, Table the Wurmple lv5, 21 the Zigzagoon lv7, Elephant Giraffe the Taillow lv10
 ATTEMPT 3 (Kanto): Leafal Weapon the Bulbasaur lv12, Tri-Hard the Doduo lv12, Bunny the Bellsprout lv11, Jollypod the Butterfree lv12
 ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly the Shinx lv14, Eldritch the Zubat lv14, Supernova the Machop lv15, Zenith the Onix lv8</script>
+
 
 
   <!-- ============================================================
@@ -697,30 +699,51 @@ ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly 
        ============================================================ */
 
     /**
-     * Read inline data from the script tag, parse it, and render the timeline.
-     * No HTTP server needed – works when opening index.html directly via file://.
+     * Load data and render the timeline.
+     *
+     * Strategy:
+     *   1. Try to fetch nuzlocke_data.yaml from the server (works when hosted).
+     *   2. If that fails (e.g. file:// protocol), fall back to the inline
+     *      <script id="nuzlocke-data"> tag.
+     *
+     * This way nuzlocke_data.yaml is the single source of truth when deployed,
+     * while local usage still works without a server.
      */
-    function loadAndRender() {
+    async function loadAndRender() {
       loadingMsg.textContent = 'Loading attempt data…';
 
+      let text = null;
+
+      // Step 1: Try fetching the YAML file from the server
       try {
-        // Read the text content of the inline data script
-        const text = dataScript.textContent.trim();
-
-        if (!text) {
-          throw new Error('No data found in the inline script.');
+        const response = await fetch('nuzlocke_data.yaml');
+        if (response.ok) {
+          text = await response.text();
         }
+      } catch (e) {
+        // fetch failed – likely file:// protocol, that's fine
+        console.log('Could not fetch nuzlocke_data.yaml, falling back to inline data.');
+      }
 
+      // Step 2: Fall back to inline script tag if fetch didn't work
+      if (!text) {
+        text = dataScript.textContent.trim();
+        if (!text) {
+          throw new Error('No data found in inline script fallback.');
+        }
+      }
+
+      try {
         const attempts = parseData(text);
         buildTimeline(attempts);
-
       } catch (err) {
-        console.error('Failed to load data:', err);
+        console.error('Failed to parse data:', err);
         timelineEl.innerHTML = `
           <div class="error-message">
-            <strong>Failed to load data.</strong><br>
+            <strong>Failed to parse data.</strong><br>
             <span style="font-size:12px;color:#72767d;">
-              Edit the data inside the <code><script id="nuzlocke-data"></code> tag in index.html.
+              Check the format of your data. Edit nuzlocke_data.yaml (when hosted)
+              or the inline script tag (when using file://).
             </span>
           </div>
         `;
@@ -729,6 +752,7 @@ ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly 
 
     // Start loading when the DOM is ready
     document.addEventListener('DOMContentLoaded', loadAndRender);
+
   </script>
 </body>
 </html>

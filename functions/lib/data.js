@@ -1,15 +1,12 @@
 /**
  * Shared data and parsing logic for Hall of Graves.
  * Used by both the browser page (index.html) and the server-side image generator.
+ *
+ * The single source of truth is nuzlocke_data.yaml at the project root.
+ * The server-side function fetches it via HTTP (since Cloudflare Workers
+ * don't have fs access). The browser page fetches it, falling back to
+ * an inline script tag.
  */
-
-// ── Attempt data ──────────────────────────────────────────────────
-// Edit the lines below to update your attempts.
-// Format: ATTEMPT # (Region): Nickname the Species lv#, Nickname the Species lv#, ...
-export const ATTEMPT_DATA = `ATTEMPT 1 (Kanto): Wipe the Charmander lv12, Monkey the Rattata lv12, Death the Pidgey lv12
-ATTEMPT 2 (Hoenn): Joe Pumpkin the Torchic lv10, Table the Wurmple lv5, 21 the Zigzagoon lv7, Elephant Giraffe the Taillow lv10
-ATTEMPT 3 (Kanto): Leafal Weapon the Bulbasaur lv12, Tri-Hard the Doduo lv12, Bunny the Bellsprout lv11, Jollypod the Butterfree lv12
-ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly the Shinx lv14, Eldritch the Zubat lv14, Supernova the Machop lv15, Zenith the Onix lv8`;
 
 // ── Constants ─────────────────────────────────────────────────────
 export const POKEAPI_BASE = 'https://pokeapi.co/api/v2/pokemon/';

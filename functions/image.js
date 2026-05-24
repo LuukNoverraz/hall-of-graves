@@ -5,6 +5,8 @@
  * Uses @resvg/resvg-wasm (pure WASM, works on Workers free tier) to
  * render an SVG to PNG.
  *
+ * Data is fetched from nuzlocke_data.yaml at the project root.
+ *
  * URL: https://hall-of-graves.noverraz.tv/image
  *
  * NOTE: To deploy, run: npm install
@@ -12,20 +14,31 @@
  * bundle the WASM module.
  */
 
-import { ATTEMPT_DATA, parseData, normalizeSpeciesName, POKEAPI_BASE } from './lib/data.js';
+import { parseData, normalizeSpeciesName, POKEAPI_BASE } from './lib/data.js';
 import { buildTimelineSVG } from './lib/renderer.js';
 
 // ── Main handler ──────────────────────────────────────────────────
 export async function onRequest(context) {
   try {
-    // 1. Parse the attempt data
-    const attempts = parseData(ATTEMPT_DATA);
+    // 1. Fetch the YAML data file from the deployed site
+    const { request } = context;
+    const url = new URL(request.url);
+    const yamlUrl = `${url.origin}/nuzlocke_data.yaml`;
+
+    const yamlResponse = await fetch(yamlUrl);
+    if (!yamlResponse.ok) {
+      throw new Error(`Failed to fetch nuzlocke_data.yaml: ${yamlResponse.status}`);
+    }
+    const yamlText = await yamlResponse.text();
+
+    // 2. Parse the attempt data
+    const attempts = parseData(yamlText);
 
     if (!attempts || attempts.length === 0) {
       return new Response('No attempt data found.', { status: 500 });
     }
 
-    // 2. Fetch all species IDs from PokeAPI (with caching)
+    // 3. Fetch all species IDs from PokeAPI (with caching)
     const speciesIdCache = new Map();
     const fetchPromises = [];
 
@@ -45,13 +58,13 @@ export async function onRequest(context) {
 
     await Promise.allSettled(fetchPromises);
 
-    // 3. Build the SVG
+    // 4. Build the SVG
     const svgString = buildTimelineSVG(attempts, speciesIdCache);
 
-    // 4. Convert SVG to PNG using resvg-wasm
+    // 5. Convert SVG to PNG using resvg-wasm
     const pngBuffer = await svgToPng(svgString);
 
-    // 5. Return the PNG
+    // 6. Return the PNG
     return new Response(pngBuffer, {
       headers: {
         'Content-Type': 'image/png',
@@ -62,9 +75,14 @@ export async function onRequest(context) {
 
   } catch (err) {
     console.error('Image generation failed:', err);
-    // Fallback: return the SVG as a fallback so the URL still works
+    // Fallback: return the SVG so the URL still works
     try {
-      const attempts = parseData(ATTEMPT_DATA);
+      const { request } = context;
+      const url = new URL(request.url);
+      const yamlUrl = `${url.origin}/nuzlocke_data.yaml`;
+      const yamlResponse = await fetch(yamlUrl);
+      const yamlText = await yamlResponse.text();
+      const attempts = parseData(yamlText);
       const speciesIdCache = new Map();
       const svgString = buildTimelineSVG(attempts, speciesIdCache);
       return new Response(svgString, {
@@ -103,18 +121,11 @@ async function ensureResvg() {
   if (resvgReady) return resvgReady;
 
   resvgReady = (async () => {
-    // Dynamic import of the WASM module
-    // Cloudflare Pages Functions bundle this automatically
     const resvgModule = await import('@resvg/resvg-wasm');
 
-    // Initialize the WASM runtime.
-    // On Cloudflare Workers, the WASM binary is bundled by
-    // the Pages build process.
     try {
       await resvgModule.initWasm();
     } catch (e) {
-      // initWasm may throw if already initialized or if the
-      // WASM binary path is wrong. Try alternative init.
       if (typeof resvgModule.default === 'function') {
         await resvgModule.default();
       }
