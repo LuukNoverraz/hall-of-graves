@@ -5,6 +5,7 @@
 [![OBS Ready](https://img.shields.io/badge/OBS-Ready-43b581?style=flat-square)](https://obsproject.com/)
 [![No Server Needed](https://img.shields.io/badge/No%20Server-Needed-5865f2?style=flat-square)](#)
 [![Pokémon Gen V](https://img.shields.io/badge/Pok%C3%A9mon-Gen%20V%20Sprites-ed4245?style=flat-square)](https://pokeapi.co/)
+[![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-f38020?style=flat-square)](https://pages.cloudflare.com/)
 
 **Hall of Graves** is a browser-source overlay for OBS that tracks your Pokémon Nuzlocke runs across attempts. Each failed run is displayed as a node on a timeline, with your current alive team highlighted. Pokémon sprites are fetched live from PokeAPI using Generation V artwork.
 
@@ -19,6 +20,7 @@ No server. No dependencies. Just open the file.
 - **🔤 Pokémon font.** Uses the classic DPPT font for authentic vibes.
 - **⚡ Fully static.** No HTTP server required. Works directly from `file://`.
 - **📦 Single file.** All data, styles, and logic live inside `index.html`.
+- **🖼️ Twitch panel image.** A 320px PNG endpoint at `/image` for use as a Twitch panel (requires Cloudflare Pages deployment).
 
 ## 🚀 How to Use
 
@@ -38,6 +40,8 @@ ATTEMPT 3 (Sinnoh): Ember the Chimchar lv8, Splash the Magikarp lv5, Sting the W
 - All previous lines are treated as dead teams and greyed out.
 - Each Pokémon entry follows the pattern `Nickname the Species lv#`.
 
+> **Note for Cloudflare Pages users:** If you use the `/image` endpoint, also update `functions/lib/data.js` with the same data. Both files need to stay in sync.
+
 ### 2. Open in your browser
 
 Just double-click `index.html`. It works with the `file://` protocol. No Python, no Node, no server.
@@ -45,6 +49,10 @@ Just double-click `index.html`. It works with the `file://` protocol. No Python,
 ### 3. Add to OBS
 
 Add a **Browser Source** in OBS, point it to the full path of `index.html`, and set the width to `800px`.
+
+### 4. Twitch panel image (Cloudflare Pages only)
+
+If deployed to Cloudflare Pages, visit `https://hall-of-graves.noverraz.tv/image` to get a 320px-wide PNG of the timeline. Use this URL as a Twitch panel image. The image updates automatically when you update the data.
 
 ## 🧩 Data Format Reference
 
@@ -70,12 +78,18 @@ The page is designed for easy tweaking:
 
 ```
 hall-of-graves/
-├── index.html          ← The whole app (data, styles, logic)
-├── nuzlocke_data.yaml  ← Example data file (reference only)
-├── LICENSE             ← MIT license
+├── index.html              ← The OBS overlay (data, styles, logic)
+├── nuzlocke_data.yaml      ← Example data file (reference only)
+├── LICENSE                 ← MIT license
+├── package.json            ← Dependencies for Cloudflare Pages Functions
 ├── fonts/
 │   └── pokemon-dppt.otf.woff2  ← Pokémon DPPT font
-└── README.md           ← This file
+├── functions/
+│   ├── image.js            ← Cloudflare Pages Function for /image PNG endpoint
+│   └── lib/
+│       ├── data.js         ← Shared data and parser (server-side)
+│       └── renderer.js     ← SVG builder for the 320px image
+└── README.md               ← This file
 ```
 
 ## 📜 License

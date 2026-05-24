@@ -1,0 +1,10 @@
+{
+  "name": "hall-of-graves",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A visual timeline of Nuzlocke attempts, built as a self-contained HTML file.",
+  "type": "module",
+  "dependencies": {
+    "@resvg/resvg-wasm": "^2.6.2"
+  }
+}
