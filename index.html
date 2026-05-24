@@ -333,6 +333,14 @@
   </div>
 
   <!-- ============================================================
+       INLINE DATA – edit the lines below to update your attempts
+       ============================================================ -->
+  <script id="nuzlocke-data" type="text/plain">ATTEMPT 1 (Kanto): Wipe the Charmander lv12, Monkey the Rattata lv12, Death the Pidgey lv12
+ATTEMPT 2 (Hoenn): Joe Pumpkin the Torchic lv10, Table the Wurmple lv5, 21 the Zigzagoon lv7, Elephant Giraffe the Taillow lv10
+ATTEMPT 3 (Kanto): Leafal Weapon the Bulbasaur lv12, Tri-Hard the Doduo lv12, Bunny the Bellsprout lv11, Jollypod the Butterfree lv12
+ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly the Shinx lv14, Eldritch the Zubat lv14, Supernova the Machop lv15, Zenith the Onix lv8</script>
+
+  <!-- ============================================================
        TIMELINE – populated by JavaScript
        ============================================================ -->
   <div id="timeline" class="timeline">
@@ -343,8 +351,6 @@
     /* ============================================================
        CONSTANTS
        ============================================================ */
-    const DATA_FILE = 'nuzlocke_data.yaml';
-
     // PokeAPI endpoint – we only need the species ID
     const POKEAPI_BASE = 'https://pokeapi.co/api/v2/pokemon/';
 
@@ -363,6 +369,7 @@
        ============================================================ */
     const timelineEl = document.getElementById('timeline');
     const loadingMsg = document.getElementById('loadingMsg');
+    const dataScript = document.getElementById('nuzlocke-data');
 
     /* ============================================================
        DATA PARSING
@@ -685,19 +692,20 @@
        ============================================================ */
 
     /**
-     * Load data from the YAML file, parse it, and render the timeline.
+     * Read inline data from the script tag, parse it, and render the timeline.
+     * No HTTP server needed – works when opening index.html directly via file://.
      */
-    async function loadAndRender() {
+    function loadAndRender() {
       loadingMsg.textContent = 'Loading attempt data…';
 
       try {
-        const response = await fetch(DATA_FILE);
+        // Read the text content of the inline data script
+        const text = dataScript.textContent.trim();
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        if (!text) {
+          throw new Error('No data found in the inline script.');
         }
 
-        const text = await response.text();
         const attempts = parseData(text);
         buildTimeline(attempts);
 
@@ -707,10 +715,8 @@
           <div class="error-message">
             <strong>Failed to load data.</strong><br>
             <span style="font-size:12px;color:#72767d;">
-              Make sure you're running a local HTTP server (e.g. <code>python -m http.server</code>)
-              and that <code>nuzlocke_data.yaml</code> exists in the same directory.
-            </span><br>
-            <button class="retry-btn" onclick="loadAndRender()">Retry</button>
+              Edit the data inside the <code><script id="nuzlocke-data"></code> tag in index.html.
+            </span>
           </div>
         `;
       }
