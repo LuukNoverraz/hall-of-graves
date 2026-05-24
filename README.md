@@ -7,7 +7,7 @@
 [![No Server Needed](https://img.shields.io/badge/No%20Server-Needed-5865f2?style=flat-square)](#)
 [![Pokémon Gen V](https://img.shields.io/badge/Pok%C3%A9mon-Gen%20V%20Sprites-ed4245?style=flat-square)](https://pokeapi.co/)
 
-**Hall of Graves** is a browser-source overlay for OBS that tracks your Pokémon Nuzlocke runs across attempts. Each failed run is displayed as a node on a timeline, with your current alive team highlighted. Pokémon sprites are fetched live from PokeAPI using Generation V artwork.
+**Hall of Graves** is a simple website that tracks your Pokémon Nuzlocke runs across attempts. Each failed run is displayed as a node on a timeline, with your current alive team highlighted. Pokémon sprites are fetched live from PokeAPI using Generation V artwork.
 
 No server. No dependencies. Just open the file.
 
@@ -41,11 +41,7 @@ ATTEMPT 3 (Sinnoh): Ember the Chimchar lv8, Splash the Magikarp lv5, Sting the W
 
 ### 2. Open in your browser
 
-When hosted on a web server, the page fetches `nuzlocke_data.yaml` automatically. When opened locally via `file://`, it falls back to the inline data in the `<script id="nuzlocke-data">` tag inside `index.html` — so it still works without a server.
-
-### 3. Add to OBS
-
-Add a **Browser Source** in OBS, point it to the full path of `index.html`, and set the width to `800px`.
+When hosted on a web server, the page fetches `nuzlocke_data.yaml` automatically. When opened locally via `file://`, it falls back to the inline data in the `<script id="nuzlocke-data">` tag inside `index.html`, so it still works without a server.
 
 ## 🧩 Data Format Reference
 
@@ -65,7 +61,6 @@ The page is designed for easy tweaking:
 - **Colors.** Edit the CSS in `index.html`. Look for `#36393f`, `#b9bbbe`, and similar values.
 - **Sprite size.** Change `width: 96px` and `height: 96px` on `.pokemon-card img`.
 - **Font.** Swap the `@font-face` source in the `<style>` block.
-- **Width.** Change `width: 800px` on `body` for different OBS dimensions.
 
 ## 📁 Project Structure
 
