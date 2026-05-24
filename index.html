@@ -81,7 +81,10 @@
       padding: 24px 20px 32px;
       min-height: 100vh;
       transition: background 0.3s ease, color 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
+
 
 
     /* ============================================================
@@ -119,7 +122,9 @@
     .timeline {
       position: relative;
       padding-left: 32px;            /* Room for the vertical line + node */
+      flex: 1;                       /* Push footer to bottom */
     }
+
 
     /* The vertical line – drawn via a pseudo-element on the container */
     .timeline::before {
