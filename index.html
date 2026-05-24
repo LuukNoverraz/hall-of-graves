@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hall of Graves</title>
+  <style>
+    /* ============================================================
+       FONT FACE – Pokémon DPPT font
+       ============================================================ */
+    @font-face {
+      font-family: 'PokemonDPPT';
+      src: url('fonts/pokemon-dppt.otf.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #36393f;           /* Discord dark background */
+      color: #b9bbbe;                /* Discord light grey text */
+      font-family: 'PokemonDPPT', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      width: 800px;                  /* Fixed width for OBS */
+      margin: 0 auto;
+      padding: 24px 20px 32px;
+      min-height: 100vh;
+    }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    .header {
+      text-align: center;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #4f545c;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .header p {
+      font-size: 12px;
+      color: #72767d;
+      margin-top: 4px;
+    }
+
+    /* ============================================================
+       TIMELINE CONTAINER
+       ============================================================ */
+    .timeline {
+      position: relative;
+      padding-left: 32px;            /* Room for the vertical line + node */
+    }
+
+    /* The vertical line – drawn via a pseudo-element on the container */
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 14px;                    /* Center of the line */
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #4f545c;
+      border-radius: 1px;
+    }
+
+    /* ============================================================
+       ATTEMPT ROW
+       ============================================================ */
+    .attempt {
+      position: relative;
+      margin-bottom: 28px;
+    }
+
+    .attempt:last-child {
+      margin-bottom: 0;
+    }
+
+    /* The node circle on the timeline – centered on the line */
+    .attempt::before {
+      content: '';
+      position: absolute;
+      left: -22px;                   /* 32px padding - 22px = 10px left edge → center at 15px (line center) */
+      top: 6px;                      /* Align with the label text */
+      width: 10px;
+      height: 10px;
+      background: #4f545c;
+      border: 2px solid #72767d;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    /* Current (alive) attempt gets a brighter node */
+    .attempt.current::before {
+      background: #43b581;           /* Green accent for alive */
+      border-color: #43b581;
+      box-shadow: 0 0 6px rgba(67, 181, 129, 0.5);
+    }
+
+    /* ============================================================
+       ATTEMPT LABEL
+       ============================================================ */
+    .attempt-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: #dcddde;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .attempt.current .attempt-label {
+      color: #43b581;
+    }
+
+    /* Smaller label text for the region (e.g. "/ Kanto") */
+    .attempt-label .attempt-region {
+      font-size: 11px;
+      font-weight: 400;
+      color: #72767d;
+      letter-spacing: 0.3px;
+    }
+
+    .attempt-label .status-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 6px;
+      border-radius: 3px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .status-badge.dead {
+      background: #ed4245;
+      color: #fff;
+    }
+
+    .status-badge.alive {
+      background: #43b581;
+      color: #fff;
+    }
+
+    /* ============================================================
+       POKÉMON SPRITE ROW
+       ============================================================ */
+    .pokemon-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ============================================================
+       INDIVIDUAL POKÉMON CARD
+       ============================================================ */
+    .pokemon-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 104px;
+      padding: 4px;
+      border-radius: 6px;
+      background: transparent;        /* Same as page background */
+      cursor: default;
+    }
+
+    .pokemon-card img {
+      width: 96px;
+      height: 96px;
+      image-rendering: pixelated;    /* Keep sprites crisp */
+      transition: filter 0.2s ease;
+    }
+
+    /* Dead sprites are greyed out by default */
+    .attempt.dead .pokemon-card img {
+      filter: grayscale(1);
+    }
+
+    /* Hover: remove grayscale on the hovered card */
+    .attempt.dead .pokemon-card:hover img {
+      filter: grayscale(0);
+    }
+
+    /* ============================================================
+       PLACEHOLDER (when sprite fails to load)
+       ============================================================ */
+    .pokemon-card .placeholder {
+      width: 96px;
+      height: 96px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border-radius: 4px;
+      font-size: 36px;
+      font-weight: 700;
+      color: #ed4245;
+      transition: filter 0.2s ease;
+    }
+
+    .attempt.dead .pokemon-card .placeholder {
+      filter: grayscale(1);
+    }
+
+    .attempt.dead .pokemon-card:hover .placeholder {
+      filter: grayscale(0);
+    }
+
+    /* ============================================================
+       CUSTOM TOOLTIP
+       ============================================================ */
+    .pokemon-card .tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: #18191c;
+      color: #dcddde;
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      padding: 6px 12px;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .pokemon-card .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #18191c;
+    }
+
+    .pokemon-card:hover .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Main tooltip text (nickname + species) */
+    .tooltip .tooltip-main {
+      color: #dcddde;
+    }
+
+    /* Smaller label-style level text */
+    .tooltip .tooltip-lv {
+      font-size: 10px;
+      font-weight: 400;
+      color: #72767d;
+    }
+
+    /* ============================================================
+       ERROR / LOADING STATES
+       ============================================================ */
+    .error-message,
+    .loading-message {
+      text-align: center;
+      padding: 40px 20px;
+      color: #72767d;
+    }
+
+    .error-message {
+      color: #ed4245;
+    }
+
+    .error-message .retry-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 16px;
+      background: #4f545c;
+      color: #dcddde;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+
+    .error-message .retry-btn:hover {
+      background: #5d6269;
+    }
+
+    /* ============================================================
+       RESPONSIVE TWEAKS (for non-OBS viewing)
+       ============================================================ */
+    @media (max-width: 820px) {
+      body {
+        width: 100%;
+        padding: 16px 12px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       HEADER
+       ============================================================ -->
+  <div class="header">
+    <h1>Hall of Graves</h1>
+    <p>Timeline of runs</p>
+  </div>
+
+  <!-- ============================================================
+       TIMELINE – populated by JavaScript
+       ============================================================ -->
+  <div id="timeline" class="timeline">
+    <div class="loading-message" id="loadingMsg">Loading attempt data…</div>
+  </div>
+
+  <script>
+    /* ============================================================
+       CONSTANTS
+       ============================================================ */
+    const DATA_FILE = 'nuzlocke_data.yaml';
+
+    // PokeAPI endpoint – we only need the species ID
+    const POKEAPI_BASE = 'https://pokeapi.co/api/v2/pokemon/';
+
+    // Gen V (Black/White) front sprite base URL
+    const SPRITE_BASE =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/';
+
+    // In-memory cache for species → Pokédex ID lookups
+    const speciesCache = new Map();
+
+    // Track in-flight requests to avoid duplicate fetches
+    const pendingFetches = new Map();
+
+    /* ============================================================
+       DOM REFS
+       ============================================================ */
+    const timelineEl = document.getElementById('timeline');
+    const loadingMsg = document.getElementById('loadingMsg');
+
+    /* ============================================================
+       DATA PARSING
+       ============================================================ */
+
+    /**
+     * Parse a single line of the custom YAML-like format.
+     *
+     * Format:
+     *   ATTEMPT 1 (Kanto): Nightfall the Piplup lv5, Royalty the Starly lv3
+     *
+     * @param {string} line  A non-empty line of text.
+     * @param {number} index  The 0-based line index (used to detect last line).
+     * @param {number} totalLines  Total number of non-empty lines.
+     * @returns {object|null}  { label, pokemon[], isCurrent } or null on failure.
+     */
+    function parseLine(line, index, totalLines) {
+      const trimmed = line.trim();
+      if (!trimmed) return null;
+
+      // Split on the first ": " to separate label from Pokémon list
+      const colonIdx = trimmed.indexOf(': ');
+      if (colonIdx === -1) return null;
+
+      const label = trimmed.slice(0, colonIdx).trim();
+      const pokemonStr = trimmed.slice(colonIdx + 2).trim();
+
+      if (!label || !pokemonStr) return null;
+
+      // Parse comma-separated Pokémon entries
+      const entries = pokemonStr.split(',').map(s => s.trim()).filter(Boolean);
+      const pokemon = [];
+
+      for (const entry of entries) {
+        const parsed = parsePokemonEntry(entry);
+        if (parsed) pokemon.push(parsed);
+      }
+
+      // The last line is the current (alive) attempt
+      const isCurrent = (index === totalLines - 1);
+
+      return { label, pokemon, isCurrent };
+    }
+
+    /**
+     * Parse a single Pokémon entry.
+     *
+     * Format: "Nightfall the Piplup lv5"
+     *   - "Nightfall" = nickname
+     *   - "the"       = literal separator
+     *   - "Piplup"    = species (may be multiple words, e.g. "Mr. Mime")
+     *   - "lv5"       = level indicator
+     *
+     * @param {string} entry
+     * @returns {object|null}  { nickname, species, level }
+     */
+    function parsePokemonEntry(entry) {
+      // Split on " the " – this is the unique separator between nickname and species+level
+      const sepIdx = entry.indexOf(' the ');
+      if (sepIdx === -1) return null;
+
+      const nickname = entry.slice(0, sepIdx).trim();
+      const rest = entry.slice(sepIdx + 5).trim(); // after " the "
+
+      // Extract level: "lv5" at the end
+      // Species may contain spaces (e.g. "Mr. Mime"), so we match "lv<digits>" at the end
+      const levelMatch = rest.match(/^(.*?)\s+lv(\d+)$/i);
+      let species, level;
+
+      if (levelMatch) {
+        species = levelMatch[1].trim();
+        level = parseInt(levelMatch[2], 10);
+      } else {
+        // No level found – treat the whole rest as species
+        species = rest;
+        level = null;
+      }
+
+      if (!nickname || !species) return null;
+
+      return { nickname, species, level };
+    }
+
+    /**
+     * Parse the full text content into an array of attempt objects.
+     *
+     * @param {string} text  Raw file content.
+     * @returns {object[]}  Array of { label, pokemon[], isCurrent }.
+     */
+    function parseData(text) {
+      const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+      const totalLines = lines.length;
+
+      const attempts = [];
+      for (let i = 0; i < totalLines; i++) {
+        const parsed = parseLine(lines[i], i, totalLines);
+        if (parsed) attempts.push(parsed);
+      }
+
+      return attempts;
+    }
+
+    /* ============================================================
+       SPRITE FETCHING (with caching)
+       ============================================================ */
+
+    /**
+     * Fetch the National Pokédex ID for a given species name.
+     * Results are cached in `speciesCache` to avoid redundant API calls.
+     *
+     * @param {string} species  e.g. "Piplup", "Mr. Mime"
+     * @returns {Promise<number|null>}  Pokédex ID, or null on error.
+     */
+    async function fetchSpeciesId(species) {
+      const key = species.toLowerCase().trim();
+
+      // Return cached result immediately
+      if (speciesCache.has(key)) {
+        return speciesCache.get(key);
+      }
+
+      // If a fetch is already in-flight for this species, await it
+      if (pendingFetches.has(key)) {
+        return pendingFetches.get(key);
+      }
+
+      // Normalize species name for the API:
+      // PokeAPI expects hyphens for forms (e.g. "mr-mime" for "Mr. Mime")
+      const apiName = key
+        .replace(/[^a-z0-9\s-]/g, '')   // strip non-alphanumeric (except spaces/hyphens)
+        .replace(/\s+/g, '-')            // spaces → hyphens
+        .replace(/\./g, '');             // remove dots (e.g. "Mr." → "mr")
+
+      const url = `${POKEAPI_BASE}${encodeURIComponent(apiName)}/`;
+
+      // Create the fetch promise and store it so concurrent calls share it
+      const fetchPromise = (async () => {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) {
+            console.warn(`PokeAPI returned ${response.status} for "${species}" (${apiName})`);
+            speciesCache.set(key, null);
+            return null;
+          }
+          const data = await response.json();
+          const id = data.id || null;
+          speciesCache.set(key, id);
+          return id;
+        } catch (err) {
+          console.warn(`Failed to fetch species "${species}":`, err);
+          speciesCache.set(key, null);
+          return null;
+        } finally {
+          pendingFetches.delete(key);
+        }
+      })();
+
+      pendingFetches.set(key, fetchPromise);
+      return fetchPromise;
+    }
+
+    /**
+     * Build the sprite URL for a given species.
+     *
+     * @param {string} species
+     * @returns {Promise<string|null>}  Sprite URL, or null if species not found.
+     */
+    async function getSpriteUrl(species) {
+      const id = await fetchSpeciesId(species);
+      if (id === null) return null;
+      return `${SPRITE_BASE}${id}.png`;
+    }
+
+    /* ============================================================
+       DOM BUILDING
+       ============================================================ */
+
+    /**
+     * Format the attempt label for display.
+     * "ATTEMPT 1 (Kanto)" → "ATTEMPT 1" + small "/ Kanto"
+     *
+     * @param {string} label  Raw label from the data file.
+     * @returns {string}  HTML string with optional small region text.
+     */
+    function formatAttemptLabel(label) {
+      const match = label.match(/^(ATTEMPT \d+) \(([^)]+)\)$/i);
+      if (match) {
+        const attemptNum = match[1];
+        const region = match[2];
+        return `${attemptNum} <span class="attempt-region">/ ${region}</span>`;
+      }
+      // Fallback: return the raw label as-is
+      return label;
+    }
+
+    /**
+     * Create a DOM element for a single Pokémon card.
+     *
+     * @param {object} pokemon  { nickname, species, level }
+     * @param {boolean} isDead  Whether this Pokémon is from a dead attempt.
+     * @returns {HTMLElement}  The .pokemon-card element.
+     */
+    function createPokemonCard(pokemon, isDead) {
+      const card = document.createElement('div');
+      card.className = 'pokemon-card';
+
+      // Tooltip – formatted as: "Nightfall the Piplup / lv. 5"
+      const tooltip = document.createElement('div');
+      tooltip.className = 'tooltip';
+
+      const mainSpan = document.createElement('span');
+      mainSpan.className = 'tooltip-main';
+      mainSpan.textContent = `${pokemon.nickname} the ${pokemon.species}`;
+
+      const lvSpan = document.createElement('span');
+      lvSpan.className = 'tooltip-lv';
+      const levelStr = pokemon.level !== null ? `lv. ${pokemon.level}` : '??';
+      lvSpan.textContent = ` / ${levelStr}`;
+
+      tooltip.appendChild(mainSpan);
+      tooltip.appendChild(lvSpan);
+      card.appendChild(tooltip);
+
+      // Sprite image (will be populated asynchronously)
+      const img = document.createElement('img');
+      img.alt = `${pokemon.nickname} (${pokemon.species})`;
+      img.loading = 'lazy';
+
+      card.appendChild(img);
+
+      // Fetch sprite asynchronously
+      getSpriteUrl(pokemon.species).then(url => {
+        if (url) {
+          img.src = url;
+          // If the image fails to load (404 from GitHub), show placeholder
+          img.onerror = () => {
+            img.style.display = 'none';
+            const placeholder = document.createElement('div');
+            placeholder.className = 'placeholder';
+            placeholder.textContent = '?';
+            placeholder.title = `${pokemon.nickname} the ${pokemon.species}`;
+            card.insertBefore(placeholder, img);
+          };
+        } else {
+          // Species not found – show placeholder immediately
+          img.style.display = 'none';
+          const placeholder = document.createElement('div');
+          placeholder.className = 'placeholder';
+          placeholder.textContent = '?';
+          placeholder.title = `${pokemon.nickname} the ${pokemon.species}`;
+          card.insertBefore(placeholder, img);
+        }
+      });
+
+      return card;
+    }
+
+    /**
+     * Build the entire timeline DOM from parsed attempt data.
+     *
+     * @param {object[]} attempts  Array from parseData().
+     */
+    function buildTimeline(attempts) {
+      // Clear loading message
+      timelineEl.innerHTML = '';
+
+      if (!attempts || attempts.length === 0) {
+        timelineEl.innerHTML = '<div class="error-message">No attempt data found.</div>';
+        return;
+      }
+
+      for (const attempt of attempts) {
+        const row = document.createElement('div');
+        row.className = 'attempt';
+
+        // Add dead/current class
+        if (attempt.isCurrent) {
+          row.classList.add('current');
+        } else {
+          row.classList.add('dead');
+        }
+
+        // Label row – with formatted region text
+        const label = document.createElement('div');
+        label.className = 'attempt-label';
+        label.innerHTML = formatAttemptLabel(attempt.label);
+
+        // Status badge
+        const badge = document.createElement('span');
+        badge.className = `status-badge ${attempt.isCurrent ? 'alive' : 'dead'}`;
+        badge.textContent = attempt.isCurrent ? 'ALIVE' : 'DEAD';
+        label.appendChild(badge);
+
+        row.appendChild(label);
+
+        // Pokémon row
+        const pokemonRow = document.createElement('div');
+        pokemonRow.className = 'pokemon-row';
+
+        if (attempt.pokemon.length === 0) {
+          const emptyMsg = document.createElement('span');
+          emptyMsg.style.color = '#72767d';
+          emptyMsg.style.fontSize = '12px';
+          emptyMsg.textContent = 'No Pokémon recorded.';
+          pokemonRow.appendChild(emptyMsg);
+        } else {
+          for (const pokemon of attempt.pokemon) {
+            const card = createPokemonCard(pokemon, !attempt.isCurrent);
+            pokemonRow.appendChild(card);
+          }
+        }
+
+        row.appendChild(pokemonRow);
+        timelineEl.appendChild(row);
+      }
+    }
+
+    /* ============================================================
+       MAIN INIT
+       ============================================================ */
+
+    /**
+     * Load data from the YAML file, parse it, and render the timeline.
+     */
+    async function loadAndRender() {
+      loadingMsg.textContent = 'Loading attempt data…';
+
+      try {
+        const response = await fetch(DATA_FILE);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const text = await response.text();
+        const attempts = parseData(text);
+        buildTimeline(attempts);
+
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        timelineEl.innerHTML = `
+          <div class="error-message">
+            <strong>Failed to load data.</strong><br>
+            <span style="font-size:12px;color:#72767d;">
+              Make sure you're running a local HTTP server (e.g. <code>python -m http.server</code>)
+              and that <code>nuzlocke_data.yaml</code> exists in the same directory.
+            </span><br>
+            <button class="retry-btn" onclick="loadAndRender()">Retry</button>
+          </div>
+        `;
+      }
+    }
+
+    // Start loading when the DOM is ready
+    document.addEventListener('DOMContentLoaded', loadAndRender);
+  </script>
+</body>
+</html>
