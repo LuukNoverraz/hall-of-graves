@@ -1,4 +1,5 @@
-# 🪦 Hall of Graves
+# <img src="favicon.svg" width="32" height="32" alt="" style="vertical-align: middle; margin-right: 4px;"> Hall of Graves
+
 
 > A visual timeline of Nuzlocke attempts, built as a self-contained HTML file.
 
