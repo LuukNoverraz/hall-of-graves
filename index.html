@@ -23,6 +23,44 @@
     }
 
     /* ============================================================
+       CSS CUSTOM PROPERTIES – Light/Dark theme
+       ============================================================ */
+    :root,
+    [data-theme="dark"] {
+      --bg: #36393f;
+      --text: #b9bbbe;
+      --text-light: #72767d;
+      --text-bright: #dcddde;
+      --text-white: #ffffff;
+      --line: #4f545c;
+      --tooltip-bg: #18191c;
+      --tooltip-text: #dcddde;
+      --alive: #43b581;
+      --dead: #ed4245;
+      --header-border: #4f545c;
+      --btn-bg: #4f545c;
+      --btn-hover: #5d6269;
+      --btn-text: #dcddde;
+    }
+
+    [data-theme="light"] {
+      --bg: #f2f3f5;
+      --text: #4e5058;
+      --text-light: #8e9297;
+      --text-bright: #2e3036;
+      --text-white: #060607;
+      --line: #c4c9ce;
+      --tooltip-bg: #ffffff;
+      --tooltip-text: #2e3036;
+      --alive: #3ba55c;
+      --dead: #ed4245;
+      --header-border: #c4c9ce;
+      --btn-bg: #c4c9ce;
+      --btn-hover: #b0b5bb;
+      --btn-text: #2e3036;
+    }
+
+    /* ============================================================
        RESET & BASE
        ============================================================ */
     *, *::before, *::after {
@@ -32,8 +70,8 @@
     }
 
     body {
-      background: #36393f;           /* Discord dark background */
-      color: #b9bbbe;                /* Discord light grey text */
+      background: var(--bg);
+      color: var(--text);
       font-family: 'PokemonDPPT', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       font-size: 18px;
       font-weight: 200;
@@ -42,7 +80,9 @@
       margin: 0 auto;
       padding: 24px 20px 32px;
       min-height: 100vh;
+      transition: background 0.3s ease, color 0.3s ease;
     }
+
 
     /* ============================================================
        HEADER
@@ -51,23 +91,27 @@
       text-align: center;
       margin-bottom: 28px;
       padding-bottom: 16px;
-      border-bottom: 1px solid #4f545c;
+      border-bottom: 1px solid var(--header-border);
+      transition: border-color 0.3s ease;
     }
 
     .header h1 {
       font-size: 28px;
       font-weight: 200;
-      color: #ffffff;
+      color: var(--text-white);
       letter-spacing: 1px;
       text-transform: uppercase;
+      transition: color 0.3s ease;
     }
 
     .header p {
       font-size: 16px;
       font-weight: 200;
-      color: #72767d;
+      color: var(--text-light);
       margin-top: 4px;
+      transition: color 0.3s ease;
     }
+
 
     /* ============================================================
        TIMELINE CONTAINER
@@ -85,9 +129,11 @@
       top: 0;
       bottom: 0;
       width: 2px;
-      background: #4f545c;
+      background: var(--line);
       border-radius: 1px;
+      transition: background 0.3s ease;
     }
+
 
     /* ============================================================
        ATTEMPT ROW
@@ -109,18 +155,20 @@
       top: 6px;                      /* Align with the label text */
       width: 10px;
       height: 10px;
-      background: #4f545c;
-      border: 2px solid #72767d;
+      background: var(--line);
+      border: 2px solid var(--text-light);
       border-radius: 50%;
       z-index: 1;
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
 
     /* Current (alive) attempt gets a brighter node */
     .attempt.current::before {
-      background: #43b581;           /* Green accent for alive */
-      border-color: #43b581;
+      background: var(--alive);
+      border-color: var(--alive);
       box-shadow: 0 0 6px rgba(67, 181, 129, 0.5);
     }
+
 
     /* ============================================================
        ATTEMPT LABEL
@@ -128,22 +176,24 @@
     .attempt-label {
       font-size: 20px;
       font-weight: 200;
-      color: #dcddde;
+      color: var(--text-bright);
       text-transform: uppercase;
       letter-spacing: 0.5px;
       margin-bottom: 8px;
+      transition: color 0.3s ease;
     }
 
     .attempt.current .attempt-label {
-      color: #43b581;
+      color: var(--alive);
     }
 
     /* Smaller label text for the region (e.g. "/ Kanto") */
     .attempt-label .attempt-region {
       font-size: 14px;
       font-weight: 200;
-      color: #72767d;
+      color: var(--text-light);
       letter-spacing: 0.3px;
+      transition: color 0.3s ease;
     }
 
     .attempt-label .status-badge {
@@ -158,14 +208,15 @@
     }
 
     .status-badge.dead {
-      background: #ed4245;
+      background: var(--dead);
       color: #fff;
     }
 
     .status-badge.alive {
-      background: #43b581;
+      background: var(--alive);
       color: #fff;
     }
+
 
     /* ============================================================
        POKÉMON SPRITE ROW
@@ -245,8 +296,8 @@
       bottom: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%) translateY(4px);
-      background: #18191c;
-      color: #dcddde;
+      background: var(--tooltip-bg);
+      color: var(--tooltip-text);
       font-size: 16px;
       font-weight: 200;
       white-space: nowrap;
@@ -266,7 +317,7 @@
       left: 50%;
       transform: translateX(-50%);
       border: 5px solid transparent;
-      border-top-color: #18191c;
+      border-top-color: var(--tooltip-bg);
     }
 
     .pokemon-card:hover .tooltip {
@@ -276,14 +327,52 @@
 
     /* Main tooltip text (nickname + species) */
     .tooltip .tooltip-main {
-      color: #dcddde;
+      color: var(--tooltip-text);
     }
 
     /* Smaller label-style level text */
     .tooltip .tooltip-lv {
       font-size: 12px;
       font-weight: 200;
-      color: #72767d;
+      color: var(--text-light);
+    }
+
+    /* ============================================================
+       TOOLBAR (theme toggle + screenshot button)
+       ============================================================ */
+    .toolbar {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      z-index: 100;
+    }
+
+    .toolbar-btn {
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: background 0.2s ease, transform 0.15s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .toolbar-btn:hover {
+      background: var(--btn-hover);
+      transform: scale(1.1);
+    }
+
+    .toolbar-btn:active {
+      transform: scale(0.95);
     }
 
     /* ============================================================
@@ -293,19 +382,19 @@
     .loading-message {
       text-align: center;
       padding: 40px 20px;
-      color: #72767d;
+      color: var(--text-light);
     }
 
     .error-message {
-      color: #ed4245;
+      color: var(--dead);
     }
 
     .error-message .retry-btn {
       display: inline-block;
       margin-top: 12px;
       padding: 6px 16px;
-      background: #4f545c;
-      color: #dcddde;
+      background: var(--btn-bg);
+      color: var(--btn-text);
       border: none;
       border-radius: 4px;
       cursor: pointer;
@@ -314,7 +403,7 @@
     }
 
     .error-message .retry-btn:hover {
-      background: #5d6269;
+      background: var(--btn-hover);
     }
 
     /* ============================================================
@@ -326,9 +415,18 @@
         padding: 16px 12px 24px;
       }
     }
+
   </style>
 </head>
 <body>
+
+  <!-- ============================================================
+       TOOLBAR (theme toggle + screenshot)
+       ============================================================ -->
+  <div class="toolbar">
+    <button class="toolbar-btn" id="themeToggle" title="Toggle light/dark mode">🌙</button>
+    <button class="toolbar-btn" id="screenshotBtn" title="Download screenshot (320px wide)">📷</button>
+  </div>
 
   <!-- ============================================================
        HEADER
@@ -337,6 +435,7 @@
     <h1>Hall of Graves</h1>
     <p>Timeline of runs</p>
   </div>
+
 
   <!-- ============================================================
        INLINE DATA – fallback for local file:// usage
@@ -759,6 +858,75 @@ ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly 
     // Start loading when the DOM is ready
     document.addEventListener('DOMContentLoaded', loadAndRender);
 
+    /* ============================================================
+       THEME TOGGLE (light/dark mode)
+       ============================================================ */
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Load saved theme from localStorage
+    const savedTheme = localStorage.getItem('hall-of-graves-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      themeToggle.textContent = next === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('hall-of-graves-theme', next);
+    });
+
+    /* ============================================================
+       SCREENSHOT BUTTON (320px wide PNG download)
+       ============================================================ */
+    const screenshotBtn = document.getElementById('screenshotBtn');
+
+    screenshotBtn.addEventListener('click', async () => {
+      // Temporarily disable hover effects for a clean capture
+      const styleId = 'screenshot-no-hover';
+      let noHoverStyle = document.getElementById(styleId);
+      if (!noHoverStyle) {
+        noHoverStyle = document.createElement('style');
+        noHoverStyle.id = styleId;
+        noHoverStyle.textContent = `
+          .pokemon-card:hover img { transform: none !important; }
+          .attempt.dead .pokemon-card:hover img { filter: grayscale(1) !important; }
+          .pokemon-card:hover .tooltip { opacity: 0 !important; }
+          .attempt.dead .pokemon-card:hover .placeholder { filter: grayscale(1) !important; }
+        `;
+        document.head.appendChild(noHoverStyle);
+      }
+
+      try {
+        // Dynamically load html2canvas from CDN
+        const html2canvas = (await import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js')).default;
+
+        // Capture the timeline element at 320px width
+        const canvas = await html2canvas(timelineEl, {
+          width: 320,
+          scale: 2,                  // 2x for retina-quality output
+          backgroundColor: getComputedStyle(document.body).getPropertyValue('--bg').trim(),
+          logging: false,
+          allowTaint: false,
+          useCORS: true,
+        });
+
+        // Create a download link
+        const link = document.createElement('a');
+        link.download = 'hall-of-graves.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (err) {
+        console.error('Screenshot failed:', err);
+        alert('Failed to generate screenshot. Check the console for details.');
+      } finally {
+        // Re-enable hover effects
+        const style = document.getElementById(styleId);
+        if (style) style.remove();
+      }
+    });
+
   </script>
+
 </body>
 </html>
