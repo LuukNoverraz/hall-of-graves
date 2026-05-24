@@ -407,6 +407,30 @@
     }
 
     /* ============================================================
+       FOOTER
+       ============================================================ */
+    .footer {
+      text-align: center;
+      margin-top: 32px;
+      padding-top: 16px;
+      border-top: 1px solid var(--header-border);
+      font-size: 14px;
+      font-weight: 200;
+      color: var(--text-light);
+      transition: border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .footer a {
+      color: var(--text-light);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer a:hover {
+      color: var(--text-bright);
+    }
+
+    /* ============================================================
        RESPONSIVE TWEAKS (for non-OBS viewing)
        ============================================================ */
     @media (max-width: 820px) {
@@ -415,6 +439,7 @@
         padding: 16px 12px 24px;
       }
     }
+
 
   </style>
 </head>
@@ -458,6 +483,18 @@ ATTEMPT 4 (Sinnoh): Righteous the Budew lv15, Physica the Geodude lv15, Anomaly 
   <div id="timeline" class="timeline">
     <div class="loading-message" id="loadingMsg">Loading attempt data…</div>
   </div>
+
+  <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+  <div class="footer">
+    Made by <a href="https://noverraz.tv" target="_blank" rel="noopener">Luuk Noverraz</a>
+    &nbsp;·&nbsp;
+    <a href="https://twitch.tv/NoverrazTV" target="_blank" rel="noopener">Twitch</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/LuukNoverraz" target="_blank" rel="noopener">GitHub</a>
+  </div>
+
 
   <script>
     /* ============================================================
