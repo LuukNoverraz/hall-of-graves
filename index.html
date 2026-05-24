@@ -29,7 +29,8 @@
       background: #36393f;           /* Discord dark background */
       color: #b9bbbe;                /* Discord light grey text */
       font-family: 'PokemonDPPT', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 14px;
+      font-size: 18px;
+      font-weight: 200;
       line-height: 1.5;
       width: 800px;                  /* Fixed width for OBS */
       margin: 0 auto;
@@ -48,15 +49,16 @@
     }
 
     .header h1 {
-      font-size: 24px;
-      font-weight: 600;
+      font-size: 28px;
+      font-weight: 200;
       color: #ffffff;
       letter-spacing: 1px;
       text-transform: uppercase;
     }
 
     .header p {
-      font-size: 12px;
+      font-size: 16px;
+      font-weight: 200;
       color: #72767d;
       margin-top: 4px;
     }
@@ -118,8 +120,8 @@
        ATTEMPT LABEL
        ============================================================ */
     .attempt-label {
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 20px;
+      font-weight: 200;
       color: #dcddde;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -132,18 +134,18 @@
 
     /* Smaller label text for the region (e.g. "/ Kanto") */
     .attempt-label .attempt-region {
-      font-size: 11px;
-      font-weight: 400;
+      font-size: 14px;
+      font-weight: 200;
       color: #72767d;
       letter-spacing: 0.3px;
     }
 
     .attempt-label .status-badge {
       display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
+      font-size: 12px;
+      font-weight: 200;
       text-transform: uppercase;
-      padding: 1px 6px;
+      padding: 2px 8px;
       border-radius: 3px;
       margin-left: 8px;
       vertical-align: middle;
@@ -187,7 +189,7 @@
       width: 96px;
       height: 96px;
       image-rendering: pixelated;    /* Keep sprites crisp */
-      transition: filter 0.2s ease;
+      transition: filter 0.2s ease, transform 0.2s ease;
     }
 
     /* Dead sprites are greyed out by default */
@@ -195,7 +197,11 @@
       filter: grayscale(1);
     }
 
-    /* Hover: remove grayscale on the hovered card */
+    /* Hover: remove grayscale and scale up on the hovered card */
+    .pokemon-card:hover img {
+      transform: scale(1.15);
+    }
+
     .attempt.dead .pokemon-card:hover img {
       filter: grayscale(0);
     }
@@ -235,10 +241,10 @@
       transform: translateX(-50%) translateY(4px);
       background: #18191c;
       color: #dcddde;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 16px;
+      font-weight: 200;
       white-space: nowrap;
-      padding: 6px 12px;
+      padding: 8px 14px;
       border-radius: 4px;
       pointer-events: none;
       opacity: 0;
@@ -269,8 +275,8 @@
 
     /* Smaller label-style level text */
     .tooltip .tooltip-lv {
-      font-size: 10px;
-      font-weight: 400;
+      font-size: 12px;
+      font-weight: 200;
       color: #72767d;
     }
 
